@@ -3,36 +3,41 @@ import os
 import setuptools
 
 version = {}
-with open("mllp_http/version.py", "r") as f:
+with open("mllp_http_https/version.py", "r") as f:
     exec(f.read(), version)
 
 with open("README.md", "r") as f:
     long_description = f.read()
 
 setuptools.setup(
-    author="Rivet Health",
-    author_email="ops@rivethealth.com",
+    author="Rivet Health & Tiago Rodrigues/SECTRA Iberia",
+    author_email="tiagoepr@hotmail.com",
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
     ],
-    description="Translate between MLLP and HTTP",
+    description="Translate between MLLP and HTTP/HTTPS",
     entry_points={
         "console_scripts": [
-            "mllp2http=mllp_http.main:mllp2http",
-            "http2mllp=mllp_http.main:http2mllp",
+            "mllp2http=mllp_http_https.main:mllp2http",
+            "http2mllp=mllp_http_https.main:http2mllp",
+            "mllp2https=mllp_http_https.main:mllp2https",
+            "https2mllp=mllp_http_https.main:https2mllp",
+
         ]
     },
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=["requests"],
-    name="mllp-http",
+    name="mllp-https",
     packages=setuptools.find_packages(),
     project_urls={
         "Issues": "https://github.com/rivethealth/mllp-http/issues",
+        "Original Project by Rivet Health": "https://github.com/rivethealth/mllp-http/",
+        "Fork with HTTPS feature": "https://github.com/tiagoepr/mllp-https",
     },
-    url="https://github.com/rivethealth/mllp-http",
+    url="https://github.com/tiagoepr/mllp-https",
     version=version["__version__"],
 )

@@ -84,3 +84,19 @@ def write_mllp(wfile, content):
     wfile.write(bytes([Format.START_BLOCK]))
     wfile.write(content)
     wfile.write(bytes([Format.END_BLOCK, Format.CARRIAGE_RETURN]))
+    # wfile.sendall(bytes([Format.START_BLOCK]))
+    # wfile.sendall(content)
+    # wfile.sendall(bytes([Format.END_BLOCK, Format.CARRIAGE_RETURN]))
+
+
+
+def send_mllp(socket, content):
+    # Send all data on MLLP
+    socket.sendall(bytes([Format.START_BLOCK]))
+    socket.sendall(content)
+    socket.sendall(bytes([Format.END_BLOCK, Format.CARRIAGE_RETURN]))
+
+    # Wait for the ACK/NACK
+    response = socket.recv(4096)
+    return response
+

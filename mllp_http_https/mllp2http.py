@@ -42,6 +42,7 @@ class MllpHandler(socketserver.StreamRequestHandler):
             for message in read_mllp(stream):
                 try:
                     logger.info("Message: %s bytes", len(message))
+                    print(message)
                     headers = {
                         "Forwarded": f"by={display_address(local_address)};for={display_address(remote_address)};proto=mllp",
                         "User-Agent": f"mllp2http/{__version__}",
@@ -71,10 +72,13 @@ class MllpHandler(socketserver.StreamRequestHandler):
                     break
                 else:
                     content = response.content
-                    logger.info("Response: %s bytes", len(content))
+                    logger.info("Response: %s bytes - %s", len(content), response)
                     write_mllp(self.wfile, content)
                     self.wfile.flush()
+        except ConnectionResetError as e:
+            logger.info("MLLP Server Disconnected")
         except Exception as e:
+            print(type(e))
             logger.error("Failed read MLLP message: %s", e)
 
 

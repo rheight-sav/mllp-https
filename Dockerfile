@@ -1,8 +1,8 @@
 FROM python:3.7-stretch AS build
 
-COPY . /tmp/mllp-http
+COPY . /tmp/mllp-https
 
-RUN pip install --no-cache-dir /tmp/mllp-http
+RUN pip install --no-cache-dir /tmp/mllp-https
 
 FROM gcr.io/distroless/python3-debian10
 
@@ -15,5 +15,9 @@ COPY --from=build /usr/local/lib/python3.7/site-packages /usr/local/lib/python3.
 COPY --from=build /usr/local/bin/http2mllp /usr/local/bin/http2mllp
 
 COPY --from=build /usr/local/bin/mllp2http /usr/local/bin/mllp2http
+
+COPY --from=build /usr/local/bin/https2mllp /usr/local/bin/https2mllp
+
+COPY --from=build /usr/local/bin/mllp2https /usr/local/bin/mllp2https
 
 ENTRYPOINT [ ]

@@ -1,6 +1,11 @@
-# MLLP/HTTP
+# MLLP/HTTP(S)
 
-[![PyPI](https://img.shields.io/pypi/v/mllp-http)](https://pypi.org/project/mllp-http/)
+
+[Project](https://github.com/tiagoepr/mllp-https/) addapted by: Tiago Rodrigues, SECTRA Iberia, 2022 <br>
+
+This project results on an enhanced package supporting HTTPS of the [original project](https://pypi.org/project/mllp-http/), whose original credits are given to [Rivet Health](https://pypi.org/user/rivet/)
+
+
 
 <p align="center">
   <img src="doc/logo.png">
@@ -8,13 +13,17 @@
 
 ## Overview
 
-Convert MLLP to HTTP and vice versa.
+Convert MLLP to HTTP(S) and vice versa.
 
-`http2mllp` is an HTTP server that translates to MLLP.
+`http2mllp` is a HTTP server that translates to MLLP.
 
-`mllp2http` is an MLLP server that translates to HTTP.
+`mllp2http` is a MLLP server that translates to HTTP.
 
-Keywords: MLLP, HTTP, HL7, HL7 over HTTP
+`https2mllp` is a HTTPS server that translates to MLLP.
+
+`mllp2https` is a MLLP server that translates to HTTPS.
+
+Keywords: MLLP, HTTP, HTTPS, SSL/TLS, HL7
 
 ## Description
 
@@ -22,17 +31,16 @@ MLLP (Minimum Lower Layer Protocol) is the traditional session protocol for HL7
 messages.
 
 Many modern tools (load balancers, application frameworks, API monitoring) are
-designed around HTTP. This observation is the foundation for the
+designed around HTTP(S). This observation is the foundation for the
 [HL7 over HTTP](https://hapifhir.github.io/hapi-hl7v2/hapi-hl7overhttp/specification.html)
 specification.
 
-This project, MLLP/HTTP, bridges these two protocols, allowing network engineers
-and application developers to work with familiar HTTP technology while
+This project, MLLP/HTTP(S), bridges these two protocols, allowing network engineers
+and application developers to work with familiar HTTP(S) technology while
 interfacing with MLLP-based programs.
 
 Implements
-[MLLP release 1](https://www.hl7.org/documentcenter/public/wg/inm/mllp_transport_specification.PDF)
-and [HTTP/1.1](https://tools.ietf.org/html/rfc2616). Each MLLP message is
+[MLLP release 1](https://www.hl7.org/documentcenter/public/wg/inm/mllp_transport_specification.PDF), [HTTP/1.1](https://tools.ietf.org/html/rfc2616), and SSL/TLS (optional). Each MLLP message is
 assumed to have a corresponding response message (e.g. HL7 acknoledgment).
 
 Note that this project deals only with the MLLP layer; it does not process HL7
@@ -43,22 +51,33 @@ of the HL7 protocol.
 
 ## Install
 
-### [Pip](https://pypi.org/project/awscli-saml/)
+### By Command Line
+Supports HTTPS (Version 1.2.1)<br>
+On the project folder, run the command:
+```sh
+python setup.py install
+```
 
+### By [Pip](https://pypi.org/project/awscli-saml/)
+Only from the [original project](https://pypi.org/project/mllp-http/). Without HTTPS functionalities yet!
 ```sh
 pip install mllp-http
 ```
 
-Run as
 
+## Run as
 ```sh
 http2mllp mllp://localhost:2575
 
 mllp2http http://localhost:8000
+
+https2mllp mllp://localhost:2575
+
+mllp2https https://localhost:8000
 ```
 
 ### [Docker](https://hub.docker.com/r/rivethealth/aws-saml)
-
+Only from the [original project](https://pypi.org/project/mllp-http/). Without HTTPS functionalities yet!
 ```sh
 docker pull rivethealth/mllp-http
 ```
@@ -129,6 +148,79 @@ environment variables:
     API_KEY - HTTP X-API-KEY header
 ```
 
+
+### https2mllp
+```
+usage: https2mllp [-h] [-H HOST] [-p PORT] [--keep-alive KEEP_ALIVE] [--log-level {error,warn,info}]
+                  [--mllp-keep-alive MLLP_KEEP_ALIVE] [--mllp-max-messages MLLP_MAX_MESSAGES] [--mllp-release {1}]
+                  [--timeout TIMEOUT] [--content-type CONTENT_TYPE] [--mllp_port MLLP_PORT] [--certfile CERTFILE]
+                  [--keyfile KEYFILE] [-v]
+                  mllp_url
+
+            HTTPS server that proxies an MLLP server.
+            Expects an MLLP response message and uses it as the HTTPS response.
+
+
+positional arguments:
+  mllp_url              MLLP URL, Defaulf: hostname
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -H HOST, --host HOST  HTTPS host (default: 0.0.0.0)
+  -p PORT, --port PORT  HTTPS port (default: 8000)
+  --keep-alive KEEP_ALIVE
+                        keep-alive in milliseconds, or unlimited if -1. (default: 0)
+  --log-level {error,warn,info}
+  --mllp-keep-alive MLLP_KEEP_ALIVE
+  --mllp-max-messages MLLP_MAX_MESSAGES
+                        maximum number of messages per connection, or unlimited if -1. (default: -1)
+  --mllp-release {1}    MLLP release version (default: 1)
+  --timeout TIMEOUT     socket timeout, in milliseconds, or unlimited if 0. (default: 0)
+  --content-type CONTENT_TYPE
+                        HTTPS Content-Type header (default: x-application/hl7-v2+er7)
+  --mllp_port MLLP_PORT
+                        MLLP PORT (default: 2575)
+  --certfile CERTFILE   Path for HTTPS Server's SSL/TLS Certificate. Default: C:/ssl/certfile.crt (default:
+                        C:/ssl/certfile.crt)
+  --keyfile KEYFILE     Path for HTTPS Server's SSL/TLS Private Key. Default: C:/ssl/keyfile.key (default:
+                        C:/ssl/keyfile.key)
+  -v, --version         show program's version number and exit
+```
+
+
+### mllp2https
+
+```
+usage: mllp2https [-h] [-H HOST] [-p PORT] [--content-type CONTENT_TYPE] [--log-level {error,warn,info}]
+                  [--mllp-release {1}] [--timeout TIMEOUT] [--verify {False,True}] [-v]
+                  https_url
+
+MLLP server that proxies an HTTPS server. Sends back the HTTPS response.
+
+positional arguments:
+  https_url             HTTPS URL
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -H HOST, --host HOST  MLLP host (default: 0.0.0.0)
+  -p PORT, --port PORT  MLLP port (default: 2575)
+  --content-type CONTENT_TYPE
+                        HTTPS Content-Type header (default: x-application/hl7-v2+er7)
+  --log-level {error,warn,info}
+  --mllp-release {1}    MLLP release version (default: 1)
+  --timeout TIMEOUT     timeout in milliseconds (default: 0)
+  --verify {False,True}
+                        Verify SSL certificate on server side. True as default (default: True)
+  -v, --version         show program's version number and exit
+
+environment variables:
+    HTTP_AUTHORIZATION - HTTP Authorization header
+    X-API-KEY - HTTP X-API-KEY header
+
+```
+
+
+
 ## Examples
 
 ### mllp2http
@@ -142,7 +234,7 @@ docker run -p 8000:80 --rm kennethreitz/httpbin
 Run the MLLP connector:
 
 ```sh
-mllp2http http://localhost:8000/post
+mllp2http https://localhost:8000
 ```
 
 Send an MLLP message:

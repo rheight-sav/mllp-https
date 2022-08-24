@@ -1,17 +1,23 @@
+### Added feature: HTTPS to MLLP
+### By Tiago Rodrigues
+### Sectra Iberia, Aug 2022
+### Addapted from https://github.com/rivethealth/mllp-http
+
+import functools
 import http.server
 import logging
 import socket
+import ssl
 import threading
 import time
-from .mllp import write_mllp
-from .net import read_socket_bytes
+from .mllp import send_mllp
 
 logger = logging.getLogger(__name__)
 
 
 class MllpClientOptions:
     def __init__(self, keep_alive, max_messages, timeout):
-        self.address = address
+        #self.address = address
         self.keep_alive = keep_alive
         self.max_messages = max_messages
         self.timeout = timeout
@@ -20,18 +26,18 @@ class MllpClientOptions:
 class MllpClient:
     def __init__(self, address, options):
         self.address = address
-        self.options = self.options
+        self.options = options
         self.connections = []
         self.lock = threading.Lock()
 
-    def _check_connection(connection):
+    def _check_connection(self, connection):
         while not connection.closed:
             elasped = (
                 connection.last_update - time.monotonic()
                 if connection.last_update is not None
                 else 0
             )
-            remaining = self.keep_alive + elasped
+            remaining = self.options.keep_alive + elasped
             if 0 < remaining:
                 time.sleep(remaining)
             else:
@@ -41,18 +47,23 @@ class MllpClient:
                 except ValueError:
                     pass
                 else:
-                    connection.close()
+                    if self.options.keep_alive > 0:
+                        # To keep the connection alive in case keep_alive is -1
+                        connection.close()
 
     def _connect(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if self.options.timeout:
             s.settimeout(self.options.timeout)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 10)
+        #print(self.address)
         s.connect(self.address)
         connection = MllpConnection(s)
-        if self.keep_alive is not None:
+        if self.options.keep_alive is not None:
             thread = threading.Thread(
-                daemon=False, target=self._check_connection, args=(connection,)
+                daemon=False,
+                target=self._check_connection,
+                args=(connection, )
             )
             thread.start()
         return connection
@@ -68,7 +79,7 @@ class MllpClient:
         if connection is None:
             connection = self._connect()
         response = connection.send(data)
-        if self.options.max_messages <= connection.message_count:
+        if self.options.max_messages <= connection.message_count and self.options.max_messages >= 0:
             connection.close()
         else:
             connection.last_update = time.monotonic()
@@ -84,46 +95,42 @@ class MllpConnection:
         self.message_count = 0
         self.socket = socket
 
-    def close():
+    def close(self):
         self.close = True
-        self.socket.shutdown()
+        self.socket.shutdown(2)
         self.socket.close()
+        print("Disconnected from MLLP Server")
 
-
-class MllpConnection:
-    def __init__(self, socket):
-        self.address = address
-        self.cancel = None
-        self.closed = False
-        self.responses = read_mllp(read_socket_bytes(self.socket))
-        self.socket = socket
-
-    def close():
-        self.closed = True
-        self.socket.close()
-
-    def send(data):
-        write_mllp(self.socket, data)
-        self.socket.flush()
+    def send(self, data):
         self.message_count += 1
-        return next(self.responses)
+
+        # To send the HL7 messages, it will make use of an MLLP parser to format the data
+        # The parser will return the ACK/NACK response
+        return send_mllp(self.socket, data)
 
 
-class HttpServerOptions:
-    def __init__(self, timeout):
+class HttpsServerOptions:
+    def __init__(self, timeout, content_type, certfile, keyfile):
         self.timeout = timeout
+        self.content_type = content_type
+        self.certfile = certfile
+        self.keyfile = keyfile
 
 
-class HttpHandler(http.server.BaseHTTPRequestHandler):
-    def __init__(self, mllp_client, content_type, timeout, keep_alive):
+class HttpsHandler(http.server.BaseHTTPRequestHandler):
+    def __init__(self, request, address, server, mllp_client, content_type, timeout, keep_alive):
         self.content_type = content_type
         self.mllp_client = mllp_client
         self.timeout = timeout
+        self.keep_alive = keep_alive
+        super().__init__(request, address, server)
+
 
     def do_POST(self):
         content_length = int(self.headers["Content-Length"])
         data = self.rfile.read(content_length)
         logger.info("Message: %s bytes", len(data))
+        print("Received Data:\n{}".format(data))
         response = self.mllp_client.send(data)
         logger.info("Response: %s bytes", len(response))
         self.send_response(201)
@@ -137,16 +144,39 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
 
 
 def serve(address, options, mllp_address, mllp_options):
+    # MLLP Client for dealing with the MLLP TCP connection
     client = MllpClient(mllp_address, mllp_options)
 
+    # HTTP server handler
     handler = functools.partial(
-        HttpHandler,
+        HttpsHandler,
         content_type=options.content_type,
-        keep_alive=options.keep_alive,
-        mllp_client=client,
+        keep_alive=mllp_options.keep_alive,
         timeout=options.timeout or None,
+        mllp_client=client,
     )
 
-    server = http.server.ThreadingHTTPServer(address)
+    server = http.server.ThreadingHTTPServer(address, handler)
+
+    # >> Dealing with SSL/TLS on the HTTP server side
+    # For Python > 3.7
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    context.load_cert_chain(
+        certfile=options.certfile,
+        keyfile=options.keyfile,
+    )
+    server.socket = context.wrap_socket(
+        server.socket,
+        server_side=True,
+    )
+    # For Python < 3.2
+    # server.socket = ssl.wrap_socket(
+    #     server.socket,
+    #     server_side=True,
+    #     certfile="C:/ssl/certfile.crt",
+    #     keyfile="C:/ssl/keyfile.key",
+    # )
+
+    logger.info("\nListening on %s:%s", address[0], address[1])
     server.protocol_version = "HTTP/1.1"
     server.serve_forever()

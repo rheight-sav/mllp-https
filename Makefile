@@ -18,7 +18,7 @@ RPAREN := )
 # Clean
 ###
 
-TARGET := mllp_http.egg-info build target
+TARGET := mllp_https.egg-info build target
 
 .PHONY: clean
 clean:
@@ -85,4 +85,4 @@ target/package-test.log: target/package.log
 
 .PHONY: docker
 docker:
-	docker build -t rivethealth/mllp-http .
+	docker build -t tiagoepr/mllp-https .
