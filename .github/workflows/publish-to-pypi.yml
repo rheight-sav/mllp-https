@@ -52,7 +52,7 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag tiagoepr/mllp-https:$(date +%s)
     - name: Docker Push
-      run: docker push ${{ secrets.DOCKER_USER }}/mllp-https
+      run: docker push tiagoepr/mllp-https
 
 
     - name: Create GitHub Release
