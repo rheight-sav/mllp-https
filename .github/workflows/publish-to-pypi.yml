@@ -50,10 +50,9 @@ jobs:
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag tiagoepr/mllp-https:${{ github.ref }}
+      run: docker build . --file Dockerfile --tag tiagoepr/mllp-https:latest
     - name: Docker Push
-      run: docker push tiagoepr/mllp-https:$${{ github.ref }}
-
+      run: docker push tiagoepr/mllp-https:latest
 
     - name: Create GitHub Release
       id: create_release
