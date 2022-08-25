@@ -70,6 +70,16 @@ jobs:
         asset_name: ${{ env.name }}
         asset_content_type: application/zip
 
+    - name: Docker login
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag tiagoepr/mllp-https:$(github.ref)
+          
+
 
 
 #name: Publish ${package_name} to PyPI / GitHub

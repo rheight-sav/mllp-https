@@ -1,14 +1,16 @@
 # MLLP/HTTP(S)
 
+[![PyPI](https://img.shields.io/pypi/v/mllp-https)](https://pypi.org/project/mllp-https/)
+
 
 [Project](https://github.com/tiagoepr/mllp-https/) addapted by: Tiago Rodrigues, SECTRA Iberia, 2022 <br>
 
-This project results on an enhanced package supporting HTTPS of the [original project](https://pypi.org/project/mllp-http/), whose original credits are given to [Rivet Health](https://pypi.org/user/rivet/)
+This project results of an enhanced package supporting HTTPS of the [original project](https://pypi.org/project/mllp-http/), whose original credits are given to [Rivet Health](https://pypi.org/user/rivet/)
 
 
 
 <p align="center">
-  <img src="doc/logo.png">
+  <img src="https://github.com/tiagoepr/mllp-https/raw/master/doc/logo.png">
 </p>
 
 ## Overview
@@ -51,43 +53,46 @@ of the HL7 protocol.
 
 ## Install
 
+
+### By [Pip](https://pypi.org/project/awscli-saml/)
+```sh
+pip install mllp-https
+```
+
 ### By Command Line
-Supports HTTPS (Version 1.2.1)<br>
 On the project folder, run the command:
 ```sh
 python setup.py install
 ```
 
-### By [Pip](https://pypi.org/project/awscli-saml/)
-Only from the [original project](https://pypi.org/project/mllp-http/). Without HTTPS functionalities yet!
-```sh
-pip install mllp-http
-```
 
 
 ## Run as
 ```sh
-http2mllp mllp://localhost:2575
+http2mllp localhost --mllp_port 2575
 
 mllp2http http://localhost:8000
 
-https2mllp mllp://localhost:2575
+https2mllp localhost --mllp_port 2575
 
 mllp2https https://localhost:8000
 ```
 
-### [Docker](https://hub.docker.com/r/rivethealth/aws-saml)
-Only from the [original project](https://pypi.org/project/mllp-http/). Without HTTPS functionalities yet!
+### [Docker](https://hub.docker.com/r/tiagoepr/mllp-https)
 ```sh
-docker pull rivethealth/mllp-http
+docker pull tiagoepr/mllp-https
 ```
 
 Run as
 
 ```sh
-docker run -it -p 2575:2575 --rm rivethealth/mllp-http http2mllp mllp://localhost:2575
+docker run -it -p 2575:2575 --rm tiagoepr/mllp-https http2mllp localhost --mllp_port 2575
 
-docker run -it -p 2575:2575 --rm rivethealth/mllp-http mllp2http http://localhost:8000
+docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2http http://localhost:8000
+
+docker run -it -p 2575:2575 --rm tiagoepr/mllp-https https2mllp localhost --mllp_port 2575 
+
+docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2http http://localhost:8000
 ```
 
 ## Usage
@@ -95,8 +100,9 @@ docker run -it -p 2575:2575 --rm rivethealth/mllp-http mllp2http http://localhos
 ### http2mllp
 
 ```
-usage: http2mllp [-h] [-H HOST] [-p PORT] [--keep-alive KEEP_ALIVE] [--log-level {error,warn,info}] [--mllp-max-messages MLLP_MAX_MESSAGES] [--mllp-release {1}]
-                 [--timeout TIMEOUT] [-v]
+usage: http2mllp [-h] [-H HOST] [-p PORT] [--keep-alive KEEP_ALIVE] [--log-level {error,warn,info}]
+                 [--mllp-keep-alive MLLP_KEEP_ALIVE] [--mllp-max-messages MLLP_MAX_MESSAGES] [--mllp-release {1}]
+                 [--timeout TIMEOUT] [--content-type CONTENT_TYPE] [-v] [--mllp_port MLLP_PORT]
                  mllp_url
 
             HTTP server that proxies an MLLP server.
@@ -104,20 +110,26 @@ usage: http2mllp [-h] [-H HOST] [-p PORT] [--keep-alive KEEP_ALIVE] [--log-level
 
 
 positional arguments:
-  mllp_url              MLLP URL, e.g. mllp://hostname:port
+  mllp_url              MLLP URL, Defaulf: hostname
 
 optional arguments:
   -h, --help            show this help message and exit
   -H HOST, --host HOST  HTTP host (default: 0.0.0.0)
   -p PORT, --port PORT  HTTP port (default: 8000)
   --keep-alive KEEP_ALIVE
-                        keep-alive in milliseconds, or unlimited if -1. (default: 0)
+                        keep-alive in milliseconds, or unlimited if -1. (default: -1)
   --log-level {error,warn,info}
+  --mllp-keep-alive MLLP_KEEP_ALIVE
+                        keep-alive in milliseconds, or unlimited if -1. (default: -1)
   --mllp-max-messages MLLP_MAX_MESSAGES
                         maximum number of messages per connection, or unlimited if -1. (default: -1)
   --mllp-release {1}    MLLP release version (default: 1)
   --timeout TIMEOUT     socket timeout, in milliseconds, or unlimited if 0. (default: 0)
+  --content-type CONTENT_TYPE
+                        HTTP Content-Type header (default: x-application/hl7-v2+er7)
   -v, --version         show program's version number and exit
+  --mllp_port MLLP_PORT
+                        MLLP PORT (default: 2575)
 ```
 
 ### mllp2http
@@ -169,9 +181,10 @@ optional arguments:
   -H HOST, --host HOST  HTTPS host (default: 0.0.0.0)
   -p PORT, --port PORT  HTTPS port (default: 8000)
   --keep-alive KEEP_ALIVE
-                        keep-alive in milliseconds, or unlimited if -1. (default: 0)
+                        keep-alive in milliseconds, or unlimited if -1. (default: -1)
   --log-level {error,warn,info}
   --mllp-keep-alive MLLP_KEEP_ALIVE
+                        keep-alive in milliseconds, or unlimited if -1. (default: -1)
   --mllp-max-messages MLLP_MAX_MESSAGES
                         maximum number of messages per connection, or unlimited if -1. (default: -1)
   --mllp-release {1}    MLLP release version (default: 1)

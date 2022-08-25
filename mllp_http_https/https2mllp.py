@@ -56,7 +56,7 @@ class MllpClient:
         if self.options.timeout:
             s.settimeout(self.options.timeout)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 10)
-        #print(self.address)
+        print(self.address)
         s.connect(self.address)
         connection = MllpConnection(s)
         if self.options.keep_alive is not None:
@@ -110,11 +110,12 @@ class MllpConnection:
 
 
 class HttpsServerOptions:
-    def __init__(self, timeout, content_type, certfile, keyfile):
+    def __init__(self, timeout, content_type, certfile, keyfile, keep_alive):
         self.timeout = timeout
         self.content_type = content_type
         self.certfile = certfile
         self.keyfile = keyfile
+        self.keep_alive = keep_alive
 
 
 class HttpsHandler(http.server.BaseHTTPRequestHandler):
@@ -151,7 +152,7 @@ def serve(address, options, mllp_address, mllp_options):
     handler = functools.partial(
         HttpsHandler,
         content_type=options.content_type,
-        keep_alive=mllp_options.keep_alive,
+        keep_alive=options.keep_alive,
         timeout=options.timeout or None,
         mllp_client=client,
     )

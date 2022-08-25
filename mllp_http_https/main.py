@@ -59,7 +59,8 @@ def http2mllp():
     parser.add_argument(
         "--mllp-keep-alive",
         type=int,
-        default=10 * 1000,
+        default=-1,
+        help="keep-alive in milliseconds, or unlimited if -1.",
     )
     parser.add_argument(
         "--mllp-max-messages",
@@ -90,7 +91,7 @@ def http2mllp():
     parser.add_argument(
         "mllp_url",
         #type=url_type,
-        help="MLLP URL, e.g. mllp://hostname"
+        help="MLLP URL, Defaulf: hostname"
     )
     parser.add_argument(
         "--mllp_port",
@@ -111,6 +112,7 @@ def http2mllp():
     http_server_options = mllp_http_https.http2mllp.HttpServerOptions(
         timeout=args.timeout / 1000,
         content_type=args.content_type,
+        keep_alive=args.keep_alive,
     )
     mllp_client_options = mllp_http_https.http2mllp.MllpClientOptions(
         keep_alive=args.mllp_keep_alive / 1000,
@@ -325,7 +327,7 @@ def https2mllp():
     parser.add_argument(
         "--keep-alive",
         type=int,
-        default=0,
+        default=-1,
         help="keep-alive in milliseconds, or unlimited if -1.",
     )
     parser.add_argument(
@@ -336,7 +338,9 @@ def https2mllp():
     parser.add_argument(
         "--mllp-keep-alive",
         type=int,
-        default=10 * 1000,
+        #default=10 * 1000,
+        default=-1,
+        help="keep-alive in milliseconds, or unlimited if -1.",
     )
     parser.add_argument(
         "--mllp-max-messages",
@@ -402,6 +406,7 @@ def https2mllp():
         content_type=args.content_type,
         certfile=args.certfile,
         keyfile=args.keyfile,
+        keep_alive=args.keep_alive,
     )
     mllp_client_options = mllp_http_https.https2mllp.MllpClientOptions(
         keep_alive=args.mllp_keep_alive / 1000,
