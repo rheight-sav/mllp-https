@@ -92,7 +92,7 @@ docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2http http://localhost:
 
 docker run -it -p 2575:2575 --rm tiagoepr/mllp-https https2mllp localhost --mllp_port 2575 
 
-docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2http http://localhost:8000
+docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2https http://localhost:8000
 ```
 
 ## Usage
@@ -247,7 +247,7 @@ docker run -p 8000:80 --rm kennethreitz/httpbin
 Run the MLLP connector:
 
 ```sh
-mllp2http https://localhost:8000
+mllp2http http://localhost:8000
 ```
 
 Send an MLLP message:
