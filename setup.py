@@ -18,6 +18,7 @@ setuptools.setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
     ],
+    license="MIT",
     description="Translate between MLLP and HTTP/HTTPS",
     entry_points={
         "console_scripts": [
