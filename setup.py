@@ -10,7 +10,7 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 setuptools.setup(
-    author="Rivet Health & Tiago Rodrigues/SECTRA Iberia",
+    author="Tiago Rodrigues/SECTRA Iberia",
     author_email="tiagoepr@hotmail.com",
     classifiers=[
         "License :: OSI Approved :: MIT License",
@@ -35,9 +35,8 @@ setuptools.setup(
     name="mllp-https",
     packages=setuptools.find_packages(),
     project_urls={
-        "Issues": "https://github.com/rivethealth/mllp-http/issues",
+        "Issues": "https://github.com/tiagoepr/mllp-https/issues",
         "Original Project by Rivet Health": "https://github.com/rivethealth/mllp-http/",
-        "Fork with HTTPS feature": "https://github.com/tiagoepr/mllp-https",
     },
     url="https://github.com/tiagoepr/mllp-https",
     version=version["__version__"],
