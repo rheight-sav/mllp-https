@@ -68,6 +68,7 @@ python setup.py install
 
 
 ## Run as
+### Command Line
 ```sh
 http2mllp localhost --mllp_port 2575
 
@@ -78,12 +79,19 @@ https2mllp localhost --mllp_port 2575
 mllp2https https://localhost:8000
 ```
 
+#### Notes on SSL/TLS:
+To use https2mllp as a https server/listener, it is required to provide a valid path for SSL certificate file and private key file. In order to do that, both certificate and key files should be placed on a folder "C:/ssl/", such that the files' paths are "C:/ssl/certfile.crt" and "C:/ssl/keyfile.key". Otherwise, both paths should be passed as argument:
+```sh
+https2mllp localhost --mllp_port 2575 --certfile /PATH/TO/certfile.crt --keyfile /PATH/TO/keyfile.key
+```
+
 ### [Docker](https://hub.docker.com/r/tiagoepr/mllp-https)
+Pull from Docker Hub:
 ```sh
 docker pull tiagoepr/mllp-https
 ```
 
-Run as
+Run as:
 
 ```sh
 docker run -it -p 2575:2575 --rm tiagoepr/mllp-https http2mllp localhost --mllp_port 2575
@@ -92,9 +100,20 @@ docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2http http://localhost:
 
 docker run -it -p 2575:2575 --rm tiagoepr/mllp-https https2mllp localhost --mllp_port 2575 
 
-docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2https http://localhost:8000
+docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2https http://localhost:8000    (See note below about SSL certificate)
 ```
+#### Notes on SSL/TLS:
+To use https2mllp as a https server/listener, it is required to provide a valid path for SSL certificate file and private key file. In order to do that, both certificate and key files should be firstly copied onto the Docker container and then the respective paths given as argument.
+<br>To do that, with the container running, run the command on the host:
 
+```sh
+docker cp [LOCAL/PATH/TO/ssh] [container_id]:/usr/local/lib/python3.10/site-packages/mllp_http_https/ssl
+```
+where [LOCAL/PATH/TO/ssh] is the path for the folder containing the certfile.crt and keyfile.key and [container_id] should be replaced by the container ID which is running.
+<br>Now, on the container bash, run the command:
+```sh
+https2mllp localhost --mllp_port 2575 --certfile /usr/local/lib/python3.10/site-packages/mllp_http_https/ssl/certfile.crt --keyfile /usr/local/lib/python3.10/site-packages/mllp_http_https/ssl/keyfile.key
+```
 ## Usage
 
 ### http2mllp

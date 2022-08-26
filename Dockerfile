@@ -1,23 +1,40 @@
-FROM python:3.7-stretch AS build
+FROM python:3.10-alpine AS build
+LABEL Mantainer="tiagoepr"
 
-COPY . /tmp/mllp-https
+RUN apk add --no-cache bash shadow
 
-RUN pip install --no-cache-dir /tmp/mllp-https
+WORKDIR /usr/local/lib/python3.10/site-packages/mllp_http_https
 
-FROM gcr.io/distroless/python3-debian10
+RUN python -m pip install --upgrade pip
+RUN pip install mllp-https
 
-ENV PYTHONPATH=/usr/local/lib/python3.7/site-packages
+CMD /bin/sh
 
-RUN python -c "import os; os.makedirs('/usr/local/bin', exist_ok=True); os.symlink('/usr/bin/python', '/usr/local/bin/python')"
+# ENTRYPOINT [ ]
 
-COPY --from=build /usr/local/lib/python3.7/site-packages /usr/local/lib/python3.7/site-packages
+# FROM python:3.7-stretch AS build
 
-COPY --from=build /usr/local/bin/http2mllp /usr/local/bin/http2mllp
+# COPY . /tmp/mllp-https
 
-COPY --from=build /usr/local/bin/mllp2http /usr/local/bin/mllp2http
+# RUN pip install --upgrade pip
+# RUN apt-get update
+# RUN apt-get -y upgrade
+# RUN pip install --no-cache-dir /tmp/mllp-https
 
-COPY --from=build /usr/local/bin/https2mllp /usr/local/bin/https2mllp
+# FROM gcr.io/distroless/python3-debian10
 
-COPY --from=build /usr/local/bin/mllp2https /usr/local/bin/mllp2https
+# ENV PYTHONPATH=/usr/local/lib/python3.7/site-packages
 
-ENTRYPOINT [ ]
+# RUN python -c "import os; os.makedirs('/usr/local/bin', exist_ok=True); os.symlink('/usr/bin/python', '/usr/local/bin/python')"
+
+# COPY --from=build /usr/local/lib/python3.7/site-packages /usr/local/lib/python3.7/site-packages
+
+# COPY --from=build /usr/local/bin/http2mllp /usr/local/bin/http2mllp
+
+# COPY --from=build /usr/local/bin/mllp2http /usr/local/bin/mllp2http
+
+# COPY --from=build /usr/local/bin/https2mllp /usr/local/bin/https2mllp
+
+# COPY --from=build /usr/local/bin/mllp2https /usr/local/bin/mllp2https
+
+# ENTRYPOINT [ ]

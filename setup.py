@@ -26,12 +26,16 @@ setuptools.setup(
             "http2mllp=mllp_http_https.main:http2mllp",
             "mllp2https=mllp_http_https.main:mllp2https",
             "https2mllp=mllp_http_https.main:https2mllp",
-
         ]
     },
     long_description=long_description,
     long_description_content_type="text/markdown",
-    install_requires=["requests"],
+    install_requires=[
+        "requests",
+        "ssl",
+        "certifi",
+        "urllib3",
+    ],
     name="mllp-https",
     packages=setuptools.find_packages(),
     project_urls={
