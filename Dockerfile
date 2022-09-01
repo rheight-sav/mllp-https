@@ -8,7 +8,9 @@ WORKDIR /usr/local/lib/python3.10/site-packages/mllp_http_https
 RUN python -m pip install --upgrade pip
 RUN pip install mllp-https
 
-CMD /bin/sh
+COPY ./ssl /usr/local/lib/python3.10/site-packages/mllp_http_https/ssl
+
+#CMD /bin/sh
 
 # ENTRYPOINT [ ]
 

@@ -107,7 +107,7 @@ To use https2mllp as a https server/listener, it is required to provide a valid 
 <br>To do that, with the container running, run the command on the host:
 
 ```sh
-docker cp [LOCAL/PATH/TO/ssh] [container_id]:/usr/local/lib/python3.10/site-packages/mllp_http_https/ssl
+docker cp [LOCAL/PATH/TO/ssl] [container_id]:/usr/local/lib/python3.10/site-packages/mllp_http_https/ssl
 ```
 where [LOCAL/PATH/TO/ssh] is the path for the folder containing the certfile.crt and keyfile.key and [container_id] should be replaced by the container ID which is running.
 <br>Now, on the container bash, run the command:
