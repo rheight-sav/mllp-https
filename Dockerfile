@@ -5,10 +5,12 @@ RUN apk add --no-cache bash shadow
 
 WORKDIR /usr/local/lib/python3.10/site-packages/mllp_http_https
 
-RUN python -m pip install --upgrade pip
+COPY ./ssl /usr/local/lib/python3.10/site-packages/mllp_http_https/ssl
+
+RUN python3 -m pip install --upgrade pip
 RUN pip install mllp-https
 
-COPY ./ssl /usr/local/lib/python3.10/site-packages/mllp_http_https/ssl
+
 
 #CMD /bin/sh
 
