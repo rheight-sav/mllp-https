@@ -90,17 +90,22 @@ Pull from Docker Hub:
 ```sh
 docker pull tiagoepr/mllp-https
 ```
+Build from dockerfile:
+```sh
+docker build -t tiagoepr/mllp-https .
+```
+
 
 Run as:
 
 ```sh
-docker run -it -p 2575:2575 --rm tiagoepr/mllp-https http2mllp localhost --mllp_port 2575
+docker run -it -p 8000:8000 --rm tiagoepr/mllp-https http2mllp localhost --mllp_port 2575
 
 docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2http http://localhost:8000
 
-docker run -it -p 2575:2575 --rm tiagoepr/mllp-https https2mllp localhost --mllp_port 2575 
+docker run -it -p 8000:8000 --rm tiagoepr/mllp-https https2mllp localhost --mllp_port 2575 
 
-docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2https http://localhost:8000    (See note below about SSL certificate)
+docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2https https://host.docker.internal:8000    (See note below about SSL certificate)
 ```
 #### Notes on SSL/TLS:
 To use https2mllp as a https server/listener, it is required to provide a valid path for SSL certificate file and private key file. In order to do that, both certificate and key files should be firstly copied onto the Docker container and then the respective paths given as argument.
