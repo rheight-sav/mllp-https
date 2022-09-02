@@ -117,7 +117,7 @@ docker cp [LOCAL/PATH/TO/ssl] [container_id]:/usr/local/lib/python3.10/site-pack
 where [LOCAL/PATH/TO/ssh] is the path for the folder containing the certfile.crt and keyfile.key and [container_id] should be replaced by the container ID which is running.
 <br>Now, on the container bash, run the command:
 ```sh
-https2mllp localhost --mllp_port 2575 --certfile /usr/local/lib/python3.10/site-packages/mllp_http_https/ssl/certfile.crt --keyfile /usr/local/lib/python3.10/site-packages/mllp_http_https/ssl/keyfile.key
+docker run -it -p 8000:8000 --rm tiagoepr/mllp-https https2mllp host.docker.internal --mllp_port 2575 --certfile /usr/local/lib/python3.7/site-packages/mllp_http_https/ssl/certfile.crt --keyfile /usr/local/lib/python3.7/site-packages/mllp_http_https/ssl/keyfile.key
 ```
 ## Usage
 

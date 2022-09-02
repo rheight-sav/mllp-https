@@ -10,9 +10,17 @@ RUN pip install mllp-https
 FROM gcr.io/distroless/python3-debian10
 LABEL Mantainer="tiagoepr"
 
+
 ENV PYTHONPATH=/usr/local/lib/python3.7/site-packages
 
 RUN python -c "import os; os.makedirs('/usr/local/bin', exist_ok=True); os.symlink('/usr/bin/python', '/usr/local/bin/python')"
+
+## Now copy the static shell into base image.
+#COPY --from=build /bin/sh /bin/sh
+#
+## You may also copy all necessary executables into distroless image.
+#COPY --from=build /bin/mkdir /bin/mkdir
+#COPY --from=build /bin/cat /bin/cat
 
 COPY ./ssl /usr/local/lib/python3.7/site-packages/mllp_http_https/ssl
 COPY --from=build /usr/local/lib/python3.7/site-packages /usr/local/lib/python3.7/site-packages
@@ -22,7 +30,7 @@ COPY --from=build /usr/local/bin/mllp2http /usr/local/bin/mllp2http
 COPY --from=build /usr/local/bin/https2mllp /usr/local/bin/https2mllp
 COPY --from=build /usr/local/bin/mllp2https /usr/local/bin/mllp2https
 
-ENTRYPOINT [ ]
+ENTRYPOINT []
 
 ##################
 
