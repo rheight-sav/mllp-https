@@ -101,7 +101,6 @@ def write_mllp(wfile, content):
     # wfile.sendall(bytes([Format.END_BLOCK, Format.CARRIAGE_RETURN]))
 
 
-
 def send_mllp(socket, content):
     # Send all data on MLLP
     socket.sendall(bytes([Format.START_BLOCK]))

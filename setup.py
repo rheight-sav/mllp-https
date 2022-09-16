@@ -11,7 +11,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     author="Tiago Rodrigues/SECTRA Iberia",
-    author_email="tiagoepr@hotmail.com",
+    author_email="Tiago.Rodrigues@sectra.com",
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
