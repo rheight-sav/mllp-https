@@ -90,7 +90,7 @@ Pull from Docker Hub:
 ```sh
 docker pull tiagoepr/mllp-https
 ```
-Build from dockerfile:
+or build from dockerfile:
 ```sh
 docker build -t tiagoepr/mllp-https .
 ```

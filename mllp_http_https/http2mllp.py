@@ -4,14 +4,14 @@ import logging
 import socket
 import threading
 import time
-from .mllp import send_mllp
+from .mllp import send_mllp, parse_mllp
 
 logger = logging.getLogger(__name__)
 
 
 class MllpClientOptions:
     def __init__(self, keep_alive, max_messages, timeout):
-        #self.address = address
+        # self.address = address
         self.keep_alive = keep_alive
         self.max_messages = max_messages
         self.timeout = timeout
@@ -50,14 +50,14 @@ class MllpClient:
         if self.options.timeout:
             s.settimeout(self.options.timeout)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 10)
-        #print(self.address)
+        # print(self.address)
         s.connect(self.address)
         connection = MllpConnection(s)
         if self.options.keep_alive is not None:
             thread = threading.Thread(
                 daemon=False,
                 target=self._check_connection,
-                args=(connection, )
+                args=(connection,)
             )
             thread.start()
         return connection
@@ -88,21 +88,21 @@ class MllpConnection:
         self.last_update = None
         self.message_count = 0
         self.socket = socket
-        #self.responses = read_mllp(read_socket_bytes(self.socket))
-        #self.responses = read_mllp(self.socket.recv(1024))
-        #print(self.responses)
+        # self.responses = read_mllp(read_socket_bytes(self.socket))
+        # self.responses = read_mllp(self.socket.recv(1024))
+        # print(self.responses)
 
     def close(self):
         self.close = True
-        self.socket.shutdown(2)
+        self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
         print("Disconnected from MLLP Server")
 
     def send(self, data):
-        #write_mllp(read_socket_bytes(self.socket), data)
-        #self.socket.flush()
+        # write_mllp(read_socket_bytes(self.socket), data)
+        # self.socket.flush()
         self.message_count += 1
-        #return next(self.responses)
+        # return next(self.responses)
         return send_mllp(self.socket, data)
 
 
@@ -140,22 +140,36 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
         self.keep_alive = keep_alive
         super().__init__(request, address, server)
 
-
     def do_POST(self):
-        content_length = int(self.headers["Content-Length"])
-        data = self.rfile.read(content_length)
-        logger.info("Message: %s bytes", len(data))
-        print("Received Data:\n{}".format(data))
-        response = self.mllp_client.send(data)
-        logger.info("Response: %s bytes", len(response))
-        self.send_response(201)
-        self.send_header("Content-Length", len(response))
-        if self.content_type:
-            self.send_header("Content-Type", self.content_type)
-        if self.keep_alive is not None:
-            self.send_header("Keep-Alive", f"timeout={self.keep_alive}")
-        self.end_headers()
-        self.wfile.write(response)
+        try:
+            # Process received data
+            content_length = int(self.headers["Content-Length"])  # From the received data
+            data = self.rfile.read(content_length)  # Read income data
+            logger.info("Message: %s bytes", len(data))
+            print("\nReceived Data:\n{}\n\n".format(data))
+
+            # Send data to MLLP Listener and get MLLP ACK response:
+            response = self.mllp_client.send(data)
+            logger.info("Response: %s bytes", len(response))
+
+            # Parse the data from the MLLP response:
+            #   > Remove Start block and End Block
+            #   > Correct Carriage Return if needed
+            response = parse_mllp(response)
+
+            # Prepare and send back ACK to HTTP client
+            self.send_response(200)
+            self.send_header("Content-Length", len(response))
+            if self.content_type:
+                self.send_header("Content-Type", self.content_type)
+                print(self.content_type)
+            if self.keep_alive is not None:
+                self.send_header("Keep-Alive", f"timeout={self.keep_alive}")
+            self.end_headers()
+            self.wfile.write(response)
+            print("Response Data:\n{}\n\n".format(response))
+        except Exception as e:
+            logger.error("HTTP connection error: %s", e)
 
 
 def serve(address, options, mllp_address, mllp_options):

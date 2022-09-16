@@ -80,6 +80,18 @@ def read_mllp(it):
                 advance()
 
 
+def parse_mllp(mllp_data):
+    hl7_text = mllp_data.decode("utf-8")
+    hl7_text = hl7_text.replace('\x0b', '')
+    hl7_text = hl7_text.replace('\x1c\r', '')
+    if not hl7_text.find("\r\n"):
+        hl7_text = hl7_text.replace('\r', '\r\n')
+    # if hl7_text.find("\x0d"):
+    #     hl7_text = hl7_text.replace('\x0d', '\r\n')
+    mllp_data = bytes(hl7_text, 'utf-8')
+    return mllp_data
+
+
 def write_mllp(wfile, content):
     wfile.write(bytes([Format.START_BLOCK]))
     wfile.write(content)

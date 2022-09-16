@@ -2,14 +2,20 @@
 ### By Tiago Rodrigues
 ### Sectra Iberia, Aug 2022
 ### Addapted from https://github.com/rivethealth/mllp-http
-
+import base64
+import datetime
 import functools
 import logging
 import os
+from datetime import datetime, timezone
+
 import requests
 import socket
 import socketserver
 import urllib
+
+from requests.auth import HTTPBasicAuth
+
 from .mllp import read_mllp, write_mllp
 from .net import read_socket_bytes
 from .version import __version__
@@ -33,6 +39,15 @@ class MllpHandler(socketserver.StreamRequestHandler):
         self.https_url = https_url
         self.https_options = https_options
         self.timeout = timeout
+
+        # If username and password are provided as arguments, use authentication
+        self.username = https_options.username
+        self.password = https_options.password
+        self.auth = None
+        if self.username and self.password:
+            self.auth = ''
+            self.auth = 'Basic ' + base64.b64encode(
+                bytes('%s:%s' % (self.username, self.password), 'utf-8')).decode('ascii')
         super().__init__(request, address, server)
 
     def handle(self):
@@ -62,7 +77,7 @@ class MllpHandler(socketserver.StreamRequestHandler):
             for message in read_mllp(stream):
                 try:
                     logger.info("Message: %s bytes", len(message))
-                    print(message)
+                    logger.info("Received Data:\n{}\n\n".format(message))
                     headers = {
                         "Forwarded": f"by={display_address(local_address)};for={display_address(remote_address)};proto=mllp",
                         "User-Agent": f"mllp2http/{__version__}",
@@ -70,17 +85,26 @@ class MllpHandler(socketserver.StreamRequestHandler):
                         "X-Forwarded-Proto": "mllp",
                     }
 
-                    if os.environ.get("HTTP_AUTHORIZATION"):
+                    if self.auth:
+                        headers["Authorization"] = self.auth
+                        #print("Authorization: {}".format(self.auth))
+                    elif os.environ.get("HTTP_AUTHORIZATION"):
                         headers["Authorization"] = os.environ["HTTP_AUTHORIZATION"]
+                        #print("Authorization: {}".format(os.environ["HTTP_AUTHORIZATION"]))
                     if os.environ.get("API_KEY"):
                         headers["X-API-KEY"] = os.environ["API_KEY"]
+                        # print(os.environ["API_KEY"])
 
                     if self.https_options.content_type is not None:
                         headers["Content-Type"] = self.https_options.content_type
 
+                    now = datetime.now(timezone.utc)
+                    date = now.strftime("%a, %d %b %y %H:%M:%S %Z")
+                    headers["Date"] = date
+
                     # Disabled the warning because it was causing the program to freeze
                     if not self.https_options.verify:
-                        print("Warning! Verify SSL: " + str(self.https_options.verify))
+                        logger.warning("Verify SSL: " + str(self.https_options.verify))
                         requests.packages.urllib3.disable_warnings()
 
                     # Sending the HL7 data by HTTPS by POST Method
@@ -101,8 +125,9 @@ class MllpHandler(socketserver.StreamRequestHandler):
                     break
                 else:
                     content = response.content
-                    print(content.decode())
+                    # print(content.decode())
                     logger.info("Response: %s bytes", len(content))
+                    logger.info("Response Data:\n{}\n\n".format(content.decode()))
                     write_mllp(self.wfile, content)
                     self.wfile.flush()
         except ConnectionResetError as e:
@@ -117,10 +142,12 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 
 class HttpsClientOptions:
-    def __init__(self, content_type, timeout, verify):
+    def __init__(self, content_type, timeout, verify, username, password):
         self.content_type = content_type
         self.timeout = timeout
         self.verify = verify
+        self.username = username
+        self.password = password
 
 
 def serve(address, options, https_url, https_options):
@@ -134,8 +161,15 @@ def serve(address, options, https_url, https_options):
         timeout=options.timeout or None,
     )
 
-    # MLLP Server/Listener
-    server = ThreadedTCPServer(address, handler)
+    try:
+        # MLLP Server/Listener
+        server = ThreadedTCPServer(address, handler)
 
-    logger.info("\nListening on %s:%s", address[0], address[1])
-    server.serve_forever()
+        logger.info("Listening on %s:%s", address[0], address[1])
+        logger.info("Sending to %s", https_url[1])
+        print("\nListening on {}:{}".format(address[0], address[1]))
+        print("Sending to {}".format(https_url[1]))
+        server.serve_forever()
+
+    except Exception as e:
+        logger.error("MLLP connection error: %s", e)
