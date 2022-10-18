@@ -11,6 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      with:
+        tag_name: v2.29 # tag name to delete
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
     - uses: actions/checkout@master
     - name: Set up Python 3.10
