@@ -129,7 +129,7 @@ usage: http2mllp [-h] [-H HOST] [-p PORT] [--keep-alive KEEP_ALIVE] [--log-level
                  [--timeout TIMEOUT] [--content-type CONTENT_TYPE] [-v] [--mllp_port MLLP_PORT]
                  mllp_url
 
-            HTTP server that proxies an MLLP server.
+            HTTP server that proxies an MLLP client.
             Expects an MLLP response message and uses it as the HTTP response.
 
 
@@ -163,7 +163,7 @@ usage: mllp2https [-h] [-H HOST] [-p PORT] [--username USERNAME] [--password PAS
                   [-v]
                   https_url
 
-MLLP server that proxies an HTTPS server. Sends back the HTTPS response.
+MLLP server that proxies an HTTPS client. Sends back the HTTPS response.
 
 positional arguments:
   https_url             HTTPS URL
@@ -196,7 +196,7 @@ usage: https2mllp [-h] [-H HOST] [-p PORT] [--username USERNAME] [--password PAS
                   [--mllp-max-messages MLLP_MAX_MESSAGES] [--mllp-release {1}] [--timeout TIMEOUT] [--content-type CONTENT_TYPE] [--mllp_port MLLP_PORT] [--certfile CERTFILE] [--keyfile KEYFILE] [--mllp_parser {True,False}] [-v]
                   mllp_url
 
-            HTTPS server that proxies an MLLP server.
+            HTTPS server that proxies an MLLP client.
             Expects an MLLP response message and uses it as the HTTPS response.
 
 
@@ -205,10 +205,12 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  --mllp_port MLLP_PORT
+                        MLLP PORT (default: 2575)
   -H HOST, --host HOST  HTTPS host (default: 0.0.0.0)
   -p PORT, --port PORT  HTTPS port (default: 8000)
-  --username USERNAME   Username for HTTPS server authentication (Optional). If not provided, authentication will be skipped. (default: None)
-  --password PASSWORD   User password for HTTPS server authentication (Optional). If not provided, authentication will be skipped. (default: None)
+  --username USERNAME   Username for HTTPS server authentication (Optional). If not provided, authentication will be skipped unless the environment vartiable exists. (default: None)
+  --password PASSWORD   User password for HTTPS server authentication (Optional). If not provided, authentication will be skipped  unless the environment vartiable exists. (default: None)
   --keep-alive KEEP_ALIVE
                         keep-alive in milliseconds, or unlimited if -1. (default: 0)
   --log-level {error,warn,info}
@@ -221,14 +223,12 @@ optional arguments:
   --timeout TIMEOUT     socket timeout, in milliseconds, or unlimited if 0. (default: 0)
   --content-type CONTENT_TYPE
                         HTTPS Content-Type header (default: application/hl7-v2; charset=utf-8)
-  --mllp_port MLLP_PORT
-                        MLLP PORT (default: 2575)
-  --certfile CERTFILE   Path for HTTPS Server's SSL/TLS Certificate. Default: C:/ssl/certfile.crt (default: C:/ssl/certfile.crt)
-  --keyfile KEYFILE     Path for HTTPS Server's SSL/TLS Private Key. Default: C:/ssl/keyfile.key (default: C:/ssl/keyfile.key)
+  --certfile CERTFILE   Path for HTTPS Server's SSL/TLS Certificate. (default: C:/ssl/certfile.crt)
+  --keyfile KEYFILE     Path for HTTPS Server's SSL/TLS Private Key. (default: C:/ssl/keyfile.key)
   --mllp_parser {True,False}
                         If False, the package will not parse the MLLP and will send an HTTPS POST with the MLLP encapsulating the HL7 message. If True, the HTTPS POST will only present the HL7 on the Body without MLLP characters
                         (default: True)
-  -v, --version         show program's version number and exit
+  -v, --version         Show program's version number and exit
 ```
 
 
@@ -239,7 +239,7 @@ usage: mllp2https [-h] [-H HOST] [-p PORT] [--username USERNAME] [--password PAS
                   [-v]
                   https_url
 
-MLLP server that proxies an HTTPS server. Sends back the HTTPS response.
+MLLP server that proxies an HTTPS client. Sends back the HTTPS response.
 
 positional arguments:
   https_url             HTTPS URL
@@ -255,14 +255,14 @@ optional arguments:
   --log-level {error,warn,info}
   --log-file LOG_FILE   Path to file where the logs will be placed. If not provided logging will be done on command window. (default: None)
   --mllp-release {1}    MLLP release version (default: 1)
-  --timeout TIMEOUT     timeout in milliseconds (default: 0)
+  --timeout TIMEOUT     Timeout in milliseconds (default: 0)
   --verify {False,True}
-                        Verify SSL certificate on server side. True as default (default: True)
+                        Verify SSL certificate on server side. Should be set to 'True', 'False' or to a path to a CA_BUNDLE file or directory with certificates of trusted Cas.
   -v, --version         show program's version number and exit
 
 environment variables:
-    HTTP_AUTHORIZATION - HTTP Authorization header
-    X-API-KEY - HTTP X-API-KEY header
+    HTTPS_AUTHORIZATION - HTTPS Authorization header
+    X-API-KEY - HTTPS X-API-KEY header
 
 ```
 

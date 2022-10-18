@@ -145,7 +145,13 @@ class HttpsClientOptions:
     def __init__(self, content_type, timeout, verify, username, password):
         self.content_type = content_type
         self.timeout = timeout
-        self.verify = verify
+        self.verify = True
+        if verify == "False":
+            self.verify = False
+        elif verify == "True":
+            self.verify = True
+        else:
+            self.verify = verify
         self.username = username
         self.password = password
 

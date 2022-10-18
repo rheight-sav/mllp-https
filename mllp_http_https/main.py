@@ -28,7 +28,7 @@ def http2mllp():
     parser = argparse.ArgumentParser(
         "http2mllp",
         description="""
-            HTTP server that proxies an MLLP server.
+            HTTP server that proxies an MLLP client.
             Expects an MLLP response message and uses it as the HTTP response.
         """,
         formatter_class=ArgumentFormatter,
@@ -138,7 +138,7 @@ def http2mllp():
 def mllp2http():
     parser = argparse.ArgumentParser(
         "mllp2http",
-        description="MLLP server that proxies an HTTP server. Sends back the HTTP response.",
+        description="MLLP server that proxies an HTTP client. Sends back the HTTP response.",
         formatter_class=ArgumentFormatter,
         epilog="""
 environment variables:
@@ -222,10 +222,20 @@ def https2mllp():
     parser = argparse.ArgumentParser(
         "https2mllp",
         description="""
-            HTTPS server that proxies an MLLP server.
+            HTTPS server that proxies an MLLP client.
             Expects an MLLP response message and uses it as the HTTPS response.
         """,
         formatter_class=ArgumentFormatter,
+        epilog="""
+environment variables:
+    HTTP_AUTHORIZATION - HTTPS Authorization header
+        """,
+    )
+    parser.add_argument(
+        "--mllp_port",
+        default=2575,
+        type=int,
+        help="MLLP PORT",
     )
     parser.add_argument(
         "-H",
@@ -243,13 +253,14 @@ def https2mllp():
     parser.add_argument(
         "--username",
         default=None,
-        help="Username for HTTPS server authentication (Optional). If not provided, authentication will be skipped.",
+        help="Username for HTTPS server authentication (Optional). If not provided, authentication will be skipped "
+             "unless the environment variable exists.",
     )
     parser.add_argument(
         "--password",
         default=None,
         help="User password for HTTPS server authentication (Optional). If not provided, authentication will be "
-             "skipped.",
+             "skipped unless the environment variable exists.",
     )
     parser.add_argument(
         "--keep-alive",
@@ -271,13 +282,13 @@ def https2mllp():
         "--mllp-keep-alive",
         type=int,
         default=10 * 1000,
-        help="keep-alive in milliseconds, or unlimited if -1.",
+        help="MLLP keep-alive in milliseconds, or unlimited if -1.",
     )
     parser.add_argument(
         "--mllp-max-messages",
         type=int,
         default=-1,
-        help="maximum number of messages per connection, or unlimited if -1.",
+        help="Maximum number of messages per connection, or unlimited if -1.",
     )
     parser.add_argument(
         "--mllp-release",
@@ -302,22 +313,16 @@ def https2mllp():
         help="MLLP URL, Defaulf: hostname"
     )
     parser.add_argument(
-        "--mllp_port",
-        default=2575,
-        type=int,
-        help="MLLP PORT",
-    )
-    parser.add_argument(
         "--certfile",
         default="C:/ssl/certfile.crt",
         type=str,
-        help="Path for HTTPS Server's SSL/TLS Certificate. Default: C:/ssl/certfile.crt",
+        help="Path for HTTPS Server's SSL/TLS Certificate.",
     )
     parser.add_argument(
         "--keyfile",
         default="C:/ssl/keyfile.key",
         type=str,
-        help="Path for HTTPS Server's SSL/TLS Private Key. Default: C:/ssl/keyfile.key",
+        help="Path for HTTPS Server's SSL/TLS Private Key.",
     )
     parser.add_argument(
         "--mllp_parser",
@@ -381,13 +386,18 @@ def https2mllp():
 def mllp2https():
     parser = argparse.ArgumentParser(
         "mllp2https",
-        description="MLLP server that proxies an HTTPS server. Sends back the HTTPS response.",
+        description="MLLP server that proxies an HTTPS client. Sends back the HTTPS response.",
         formatter_class=ArgumentFormatter,
         epilog="""
 environment variables:
-    HTTP_AUTHORIZATION - HTTP Authorization header
+    HTTP_AUTHORIZATION - HTTPS Authorization header
     X-API-KEY - HTTPS X-API-KEY header
         """,
+    )
+    parser.add_argument(
+        "https_url",
+        help="HTTPS URL",
+        type=url_type
     )
     parser.add_argument(
         "-H",
@@ -405,12 +415,14 @@ environment variables:
     parser.add_argument(
         "--username",
         default=None,
-        help="Username for HTTPS server authentication (Optional). If not provided, authentication will be skipped.",
+        help="Username for HTTPS server authentication (Optional). If not provided, authentication will be skipped "
+             "unless any of the environment variables exists.",
     )
     parser.add_argument(
         "--password",
         default=None,
-        help="User password for HTTPS server authentication (Optional). If not provided, authentication will be skipped.",
+        help="User password for HTTPS server authentication (Optional). If not provided, authentication will be "
+             "skipped unless any of the environment variables exists.",
     )
     parser.add_argument(
         "--content-type",
@@ -437,22 +449,19 @@ environment variables:
         "--timeout",
         default=0,
         type=float,
-        help="timeout in milliseconds",
+        help="Timeout in milliseconds",
     )
     parser.add_argument(
         "--verify",
-        choices=("False", "True"),
         default="True",
         type=str,
-        help="Verify SSL certificate on server side. True as default",
+        help="Verify SSL certificate on server side. Should be set to 'True', 'False' or to a path to a CA_BUNDLE "
+             "file or directory with certificates of trusted Cas.",
     )
     parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s {}".format(__version__)
     )
-    parser.add_argument(
-        "https_url",
-        help="HTTPS URL",
-        type=url_type)
+
     args = parser.parse_args()
 
     import mllp_http_https.mllp2https
@@ -473,7 +482,7 @@ environment variables:
     https_client_options = mllp_http_https.mllp2https.HttpsClientOptions(
         content_type=args.content_type,
         timeout=args.timeout if args.timeout else None,
-        verify=True if args.verify == "True" else False,
+        verify=args.verify,
         username=args.username if args.username else None,
         password=args.password if args.password else None,
     )
@@ -495,5 +504,5 @@ environment variables:
 
 
 # For debugging reasons
-# mllp2https()
-# https2mllp()
+mllp2https()
+#https2mllp()

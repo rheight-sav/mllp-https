@@ -6,6 +6,7 @@ import base64
 import functools
 import http.server
 import logging
+import os
 import socket
 import ssl
 import threading
@@ -240,6 +241,10 @@ def serve(address, options, mllp_address, mllp_options):
         )
         logger.info(
             "Authentication on server side is enabled.\nUser: {}\nPassword: {}".format(options.username, "*"*len(options.password)))
+    elif os.environ.get("HTTP_AUTHORIZATION"):
+        auth = os.environ["HTTP_AUTHORIZATION"]
+        logger.info(
+            "Authentication on server side is enabled with Environment Variable HTTP_AUTHORIZATION.")
     else:
         auth = None
         logger.warning(
