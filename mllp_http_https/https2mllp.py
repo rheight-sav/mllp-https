@@ -11,13 +11,11 @@ import socket
 import ssl
 import threading
 import time
-from base64 import b64encode
 from datetime import datetime, timezone
 
 from .mllp import send_mllp, parse_mllp
 
 logger = logging.getLogger(__name__)
-
 
 class MllpClientOptions:
     def __init__(self, keep_alive, max_messages, timeout):
@@ -230,6 +228,7 @@ class HttpsHandler(http.server.BaseHTTPRequestHandler):
 
 
 def serve(address, options, mllp_address, mllp_options):
+
     # MLLP Client for dealing with the MLLP TCP connection
     client = MllpClient(mllp_address, mllp_options)
 

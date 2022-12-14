@@ -70,11 +70,11 @@ python setup.py install
 ## Run as
 ### Command Line
 ```sh
-http2mllp localhost --mllp_port 2575
+http2mllp localhost 
 
 mllp2http http://localhost:8000
 
-https2mllp localhost --mllp_port 2575
+https2mllp localhost
 
 mllp2https https://localhost:8000
 ```
@@ -99,11 +99,11 @@ docker build -t tiagoepr/mllp-https .
 Run as:
 
 ```sh
-docker run -it -p 8000:8000 --rm tiagoepr/mllp-https http2mllp host.docker.internal --mllp_port 2575
+docker run -it -p 8000:8000 --rm tiagoepr/mllp-https http2mllp host.docker.internal
 
 docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2http http://host.docker.internal:8000
 
-docker run -it -p 8000:8000 --rm tiagoepr/mllp-https https2mllp host.docker.internal --mllp_port 2575  (See note below about SSL certificate)
+docker run -it -p 8000:8000 --rm tiagoepr/mllp-https https2mllp host.docker.internal (See note below about SSL certificate)
 
 docker run -it -p 2575:2575 --rm tiagoepr/mllp-https mllp2https https://host.docker.internal:8000    
 ```
@@ -117,7 +117,7 @@ docker cp [LOCAL/PATH/TO/ssl] [container_id]:/usr/local/lib/python3.10/site-pack
 where [LOCAL/PATH/TO/ssh] is the path for the folder containing the certfile.crt and keyfile.key and [container_id] should be replaced by the container ID which is running.
 <br>Now, on the container bash, run the command:
 ```sh
-docker run -it -p 8000:8000 --rm tiagoepr/mllp-https https2mllp host.docker.internal --mllp_port 2575 --certfile /usr/local/lib/python3.7/site-packages/mllp_http_https/ssl/certfile.crt --keyfile /usr/local/lib/python3.7/site-packages/mllp_http_https/ssl/keyfile.key
+docker run -it -p 8000:8000 --rm tiagoepr/mllp-https https2mllp host.docker.internal --certfile /usr/local/lib/python3.7/site-packages/mllp_http_https/ssl/certfile.crt --keyfile /usr/local/lib/python3.7/site-packages/mllp_http_https/ssl/keyfile.key
 ```
 ## Usage
 
@@ -192,7 +192,7 @@ environment variables:
 
 ### https2mllp
 ```
-usage: https2mllp [-h] [-H HOST] [-p PORT] [--username USERNAME] [--password PASSWORD] [--keep-alive KEEP_ALIVE] [--log-level {error,warn,info}] [--log-file LOG_FILE] [--mllp-keep-alive MLLP_KEEP_ALIVE]
+usage: https2mllp [-h] [-H HOST] [-p PORT] [--username USERNAME] [--password PASSWORD] [--keep-alive KEEP_ALIVE] [--log-level {error,warn,info}] [--log-folder LOG_FOLDER] [--mllp-keep-alive MLLP_KEEP_ALIVE]
                   [--mllp-max-messages MLLP_MAX_MESSAGES] [--mllp-release {1}] [--timeout TIMEOUT] [--content-type CONTENT_TYPE] [--mllp_port MLLP_PORT] [--certfile CERTFILE] [--keyfile KEYFILE] [--mllp_parser {True,False}] [-v]
                   mllp_url
 
@@ -214,7 +214,7 @@ optional arguments:
   --keep-alive KEEP_ALIVE
                         keep-alive in milliseconds, or unlimited if -1. (default: 0)
   --log-level {error,warn,info}
-  --log-file LOG_FILE   Path to file where the logs will be placed. If not provided logging will be done on command window. (default: None)
+  --log-folder LOG_FOLDER   Path to folder where the logs will be placed. If not provided logging will be done on command window. (default: None)
   --mllp-keep-alive MLLP_KEEP_ALIVE
                         keep-alive in milliseconds, or unlimited if -1. (default: 10000)
   --mllp-max-messages MLLP_MAX_MESSAGES
@@ -235,7 +235,7 @@ optional arguments:
 ### mllp2https
 
 ```
-usage: mllp2https [-h] [-H HOST] [-p PORT] [--username USERNAME] [--password PASSWORD] [--content-type CONTENT_TYPE] [--log-level {error,warn,info}] [--log-file LOG_FILE] [--mllp-release {1}] [--timeout TIMEOUT] [--verify {False,True}]
+usage: mllp2https [-h] [-H HOST] [-p PORT] [--username USERNAME] [--password PASSWORD] [--content-type CONTENT_TYPE] [--log-level {error,warn,info}] [--log-folder LOG_FOLDER] [--mllp-release {1}] [--timeout TIMEOUT] [--verify {False,True}]
                   [-v]
                   https_url
 
@@ -253,7 +253,7 @@ optional arguments:
   --content-type CONTENT_TYPE
                         HTTPS Content-Type header (default: application/hl7-v2; charset=utf-8)
   --log-level {error,warn,info}
-  --log-file LOG_FILE   Path to file where the logs will be placed. If not provided logging will be done on command window. (default: None)
+  --log-folder LOG_FOLDER   Path to folder where the logs will be placed. If not provided logging will be done on command window. (default: None)
   --mllp-release {1}    MLLP release version (default: 1)
   --timeout TIMEOUT     Timeout in milliseconds (default: 0)
   --verify {False,True}

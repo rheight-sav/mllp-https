@@ -1,8 +1,9 @@
 import argparse
 import datetime
 import logging
+import logging.handlers as handlers
 import urllib.parse
-from .version import __version__
+from mllp_http_https.version import __version__
 
 
 class ArgumentFormatter(
@@ -135,6 +136,7 @@ def http2mllp():
         pass
 
 
+
 def mllp2http():
     parser = argparse.ArgumentParser(
         "mllp2http",
@@ -233,7 +235,7 @@ environment variables:
     )
     parser.add_argument(
         "--mllp_port",
-        default=2575,
+        default="2575",
         type=int,
         help="MLLP PORT",
     )
@@ -274,9 +276,9 @@ environment variables:
         default="info",
     )
     parser.add_argument(
-        "--log-file",
+        "--log-folder",
         default=None,
-        help="Path to file where the logs will be placed. If not provided logging will be done on command window."
+        help="Path to folder where the logs will be placed. If not provided logging will be done on command window."
     )
     parser.add_argument(
         "--mllp-keep-alive",
@@ -340,13 +342,24 @@ environment variables:
 
     import mllp_http_https.https2mllp
 
-    # If log_file is provided, logs will be written in file. Otherwise, will be written on console.
-    if args.log_file:
-        logging.basicConfig(
-            filename=args.log_file,
-            format="%(asctime)s [%(levelname)s] %(name)s %(message)s",
-            level=log_level(args.log_level),
+    # If log_folder is provided, logs will be written in file. Otherwise, will be written on console.
+    if args.log_folder:
+        import mllp_http_https.log2file
+        log = mllp_http_https.log2file.Log2File(
+            file_name="https2mllp.log",
+            folder_path=args.log_folder,
+            log_level_str=args.log_level,
+            number_of_days_log=1,
         )
+        log.new_log()
+
+        # Start additional thread to delete old logs
+        log_monitor = mllp_http_https.log2file.LogMonitor(
+            number_of_days_check=30,
+            folder_path=args.log_folder,
+        )
+        log_monitor.start()
+
     else:
         logging.basicConfig(
             format="%(asctime)s [%(levelname)s] %(name)s %(message)s",
@@ -370,6 +383,7 @@ environment variables:
     )
 
     try:
+        # Start the serving on the main thread
         mllp_http_https.https2mllp.serve(
             address=(
                 args.host,
@@ -435,9 +449,9 @@ environment variables:
         default="info",
     )
     parser.add_argument(
-        "--log-file",
+        "--log-folder",
         default=None,
-        help="Path to file where the logs will be placed. If not provided logging will be done on command window."
+        help="Path to folder where the logs will be placed. If not provided logging will be done on command window."
     )
     parser.add_argument(
         "--mllp-release",
@@ -466,13 +480,29 @@ environment variables:
 
     import mllp_http_https.mllp2https
 
-    # If log_file is provided, logs will be written in file. Otherwise, will be written on console.
-    if args.log_file:
-        logging.basicConfig(
-            filename=args.log_file,
-            format="%(asctime)s [%(levelname)s] %(name)s %(message)s",
-            level=log_level(args.log_level),
+    # If log_folder is provided, logs will be written in file. Otherwise, will be written on console.
+    if args.log_folder:
+        import mllp_http_https.log2file
+        log = mllp_http_https.log2file.Log2File(
+            file_name="mllp2https.log",
+            folder_path=args.log_folder,
+            log_level_str=args.log_level,
+            number_of_days_log=1,
         )
+        log.new_log()
+
+        # Start additional thread to delete old logs
+        log_monitor = mllp_http_https.log2file.LogMonitor(
+            number_of_days_check=30,
+            folder_path=args.log_folder,
+        )
+        log_monitor.start()
+
+        # logging.basicConfig(
+        #     filename=args.log_file,
+        #     format="%(asctime)s [%(levelname)s] %(name)s %(message)s",
+        #     level=log_level(args.log_level),
+        # )
     else:
         logging.basicConfig(
             format="%(asctime)s [%(levelname)s] %(name)s %(message)s",
