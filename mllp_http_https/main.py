@@ -483,33 +483,22 @@ environment variables:
     # If log_folder is provided, logs will be written in file. Otherwise, will be written on console.
     if args.log_folder:
         import mllp_http_https.log2file
-        winservice_check = False
-        log_folder = ''
-        if '_svc_gui' in args.log_folder:
-            log_folder = str(args.log_folder).replace('_svc_gui', '')
-            print('using GUI', log_folder)
-            winservice_check = True
-        else:
-            log_folder = args.log_folder
-            print('not using GUI', log_folder)
 
         log = mllp_http_https.log2file.Log2File(
             file_name="mllp2https.log",
-            folder_path=log_folder,
+            folder_path=args.log_folder,
             log_level_str=args.log_level,
             number_of_days_log=1,
         )
         log.new_log()
 
         # Start additional thread to delete old logs
-        # Only used if not in a WinService since it will use a new thread
-        if not winservice_check:
-            print('starting monitor')
-            log_monitor = mllp_http_https.log2file.LogMonitor(
-                number_of_days_check=30,
-                folder_path=log_folder,
-            )
-            log_monitor.start()
+        print('starting monitor')
+        log_monitor = mllp_http_https.log2file.LogMonitor(
+            number_of_days_check=30,
+            folder_path=args.log_folder,
+        )
+        log_monitor.start()
 
         # logging.basicConfig(
         #     filename=args.log_file,
