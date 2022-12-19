@@ -49,6 +49,8 @@ class LogMonitor:
     def __init__(self, number_of_days_check, folder_path):
         self.daemon = Thread(target=self.background_task, args=(number_of_days_check,), daemon=True, name='LogControl')
         self.folder_path = folder_path
+        # >> Substituir a thread por um windows service? https://stackoverflow.com/questions/32404/how-do-you-run-a-python-script-as-a-service-in-windows
+
 
     # task that runs at a fixed interval
     def background_task(self, interval_days):
