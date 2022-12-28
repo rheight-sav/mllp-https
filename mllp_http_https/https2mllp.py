@@ -81,7 +81,7 @@ class MllpClient:
         if connection is None:
             connection = self._connect()
         response = connection.send(data)
-        if self.options.max_messages <= connection.message_count and self.options.max_messages >= 0:
+        if connection.message_count >= self.options.max_messages >= 0:
             connection.close()
         else:
             connection.last_update = time.monotonic()
@@ -147,6 +147,10 @@ class HttpsHandler(http.server.BaseHTTPRequestHandler):
         self.authentication = authentication
         self.mllp_parser = mllp_parser
         super().__init__(request, address, server)
+
+    # Disable log from handler
+    def log_message(self, format, *args):
+        pass
 
     # For Authentication
     def do_AUTHHEAD(self):
@@ -263,6 +267,7 @@ def serve(address, options, mllp_address, mllp_options):
 
     try:
         server = http.server.ThreadingHTTPServer(address, handler)
+
 
         # >> Dealing with SSL/TLS on the HTTP server side
         # For Python > 3.7

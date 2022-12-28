@@ -108,6 +108,18 @@ def send_mllp(socket, content):
     socket.sendall(bytes([Format.END_BLOCK, Format.CARRIAGE_RETURN]))
 
     # Wait for the ACK/NACK
-    response = socket.recv(4096)
-    return response
+    response = bytearray()
+    end_block = bytes([Format.END_BLOCK])
+    while True:
+        if end_block in response:
+            # print('finished', bytes(response))
+            break
+        else:
+            packet = socket.recv(1024)
+            if not packet:
+                break
+            else:
+                response.extend(packet)
+                # print(bytes(response))
+    return bytes(response)
 
