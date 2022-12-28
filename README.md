@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/mllp-https)](https://pypi.org/project/mllp-https/)
 
 
-[Project](https://github.com/tiagoepr/mllp-https/) addapted by: Tiago Rodrigues, SECTRA Iberia, 2022 <br>
+[Project](https://github.com/tiagoepr/mllp-https/) addapted by: Tiago Rodrigues, 2022 <br>
 
 This project results of an enhanced package supporting HTTPS of the [original project](https://pypi.org/project/mllp-http/), whose original credits are given to [Rivet Health](https://pypi.org/user/rivet/)
 
